@@ -1,0 +1,23 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.wrapper::before {
+    background: conic-gradient(rgba(244, 114, 182, 0.4) 0deg, rgba(192, 132, 252, 0.4) 0deg, transparent 80deg);
+}
+
+.card::before {
+    animation: border-spin 5s linear infinite;
+}
+
+@keyframes border-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(-360deg);
+    }
+}
