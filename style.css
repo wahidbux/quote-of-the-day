@@ -21,3 +21,52 @@
         transform: rotate(-360deg);
     }
 }
+
+/* Reset and box-sizing */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Spinning gradient behind the card */
+.wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(rgba(244, 114, 182, 0.4) 0deg, rgba(192, 132, 252, 0.4) 0deg, transparent 80deg);
+    z-index: -1;
+    animation: border-spin 5s linear infinite;
+}
+
+/* Optional alternative for .card element */
+.card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, #7c77c6, #ff5e62, #ffcd3c, #7c77c6);
+    z-index: -1;
+    animation: border-spin 10s linear infinite;
+}
+
+/* Keyframes for spinning */
+@keyframes border-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+}
+
+/* Fade-in animation for quotes */
+.fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
