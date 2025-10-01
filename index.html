@@ -1,71 +1,132 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
-    <title>Quote of the Day</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <title>Quote of the Day</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Fade-in animation for quotes */
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
 
-<body>
+<body class="bg-neutral-950 text-white">
+  <!-- Background gradient -->
+  <div
+    class="absolute top-0 z-[-2] h-screen w-screen bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]">
+  </div>
+
+  <!-- Main Container -->
+  <div class="flex items-center justify-center h-screen p-4">
     <div
-        class="absolute top-0 z-[-2] h-screen w-screen bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]">
-    </div>
-    <div class="flex items-center justify-center h-screen">
-        <div class="card relative rounded-xl before:absolute wrapper before:content-[''] before:z-[-1] before:animate-border-spin before:h-[200%] before:w-[200%]  before:top-[-50%] before:left-[-50%] overflow-hidden h-2/5">
-            <div class="bg-zinc-800 text-white p-4 rounded-xl flex justify-center flex-col space-y-8 max-w-96 w-[calc(100%-4px)] h-[calc(100%-4px)] relative left-[2px] top-[2px]" >
-                <div class="flex items-center">
-                    <div class="dots flex space-x-2">
-                        <div class="bg-red-500 h-4 w-4 rounded-[100%]"></div>
-                        <div class="bg-yellow-500 h-4 w-4 rounded-[100%]"></div>
-                        <div class="bg-green-500 h-4 w-4 rounded-[100%]"></div>
-                    </div>
+      class="card relative rounded-xl before:absolute wrapper before:content-[''] before:z-[-1] before:animate-border-spin before:h-[200%] before:w-[200%]  before:top-[-50%] before:left-[-50%] overflow-hidden w-full max-w-md">
+      <div
+        class="bg-zinc-800 text-white p-5 rounded-xl flex flex-col space-y-6 w-[calc(100%-4px)] h-auto relative left-[2px] top-[2px] shadow-xl">
 
-                </div>
-                <main>
-                    <sup><i class="ri-double-quotes-l text-2xl"></i></sup>
-                    <p id="data" class="pl-8 flex justify-center">
-                        LISP has assisted a number of our most gifted fellow humans in thinking previously impossible
-                        thoughts.
-                    </p>
-                    <sub><i class="ri-double-quotes-r text-2xl flex justify-end"></i></sub>
-                </main>
-                <div id="author" class="flex justify-end font-poppins font-semibold"> — Edsger W. Dijkstra
-
-                </div>
-                <hr>
-                <div class="flex justify-between">
-                    <!-- <button class="bg-red-500 text-white px-4 py-2 rounded-lg">Previous</button> -->
-                    <button id="btn" class="bg-blue-500 text-white px-4 py-1.5 rounded-full font-semibold">New
-                        Quote</button>
-                </div>
-            </div>
+        <!-- Dots -->
+        <div class="flex items-center">
+          <div class="dots flex space-x-2">
+            <div class="bg-red-500 h-3 w-3 rounded-full"></div>
+            <div class="bg-yellow-500 h-3 w-3 rounded-full"></div>
+            <div class="bg-green-500 h-3 w-3 rounded-full"></div>
+          </div>
         </div>
+
+        <!-- Quote -->
+        <main class="text-center">
+          <sup><i class="ri-double-quotes-l text-2xl"></i></sup>
+          <p id="data" class="pl-4 pr-4 leading-relaxed fade-in">
+            LISP has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.
+          </p>
+          <sub><i class="ri-double-quotes-r text-2xl"></i></sub>
+        </main>
+
+        <!-- Author -->
+        <div id="author" class="flex justify-end font-semibold">— Edsger W. Dijkstra</div>
+
+        <hr class="border-zinc-700">
+
+        <!-- Buttons -->
+        <div class="flex justify-between">
+          <button id="prevBtn" class="bg-red-500 text-white px-4 py-1.5 rounded-full font-semibold hidden">
+            Previous
+          </button>
+          <button id="btn" class="bg-blue-500 text-white px-4 py-1.5 rounded-full font-semibold">
+            New Quote
+          </button>
+        </div>
+      </div>
     </div>
-    <script>
-        const url = "https://programming-quotes-api.azurewebsites.net/api/quotes/random";
-        const data = document.getElementById("data");
-        const btn = document.getElementById("btn");
-        const author = document.getElementById("author");
-        btn.addEventListener('click', () => {
-            fetch(url)
-                .then(response => response.json())
-                .then(quote => {
-                    console.log(quote);
-                    data.innerHTML = quote.text;
-                    author.innerHTML = ` — ${quote.author}`;
-                })
-                .catch(err => {
-                    console.log(err);
-                });
-        });
-    </script>
+  </div>
+
+  <script>
+    const url = "https://programming-quotes-api.azurewebsites.net/api/quotes/random";
+const data = document.getElementById("data");
+const btn = document.getElementById("btn");
+const prevBtn = document.getElementById("prevBtn");
+const author = document.getElementById("author");
+
+let history = [];
+let currentQuote = null;
+
+function fetchQuote() {
+  fetch(url)
+    .then(response => response.json())
+    .then(quote => {
+      if (currentQuote) history.push(currentQuote);
+      currentQuote = quote;
+      updateUI(quote);
+      if (history.length > 0) prevBtn.classList.remove("hidden");
+    })
+    .catch(err => {
+      console.error("Error fetching quote:", err);
+    });
+}
+
+function updateUI(quote) {
+  data.innerHTML = quote.en;
+  author.innerHTML = `— ${quote.author}`;
+  data.classList.remove("fade-in");
+  void data.offsetWidth; // reflow trick
+  data.classList.add("fade-in");
+}
+
+btn.addEventListener("click", fetchQuote);
+
+prevBtn.addEventListener("click", () => {
+  if (history.length > 0) {
+    const prevQuote = history.pop();
+    currentQuote = prevQuote;
+    updateUI(prevQuote);
+    if (history.length === 0) prevBtn.classList.add("hidden");
+  }
+});
+
+  </script>
 </body>
 
 </html>
