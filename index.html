@@ -84,8 +84,7 @@
   </div>
 
   <script>
-    const url = "https://programming-quotes-api.azurewebsites.net/api/quotes/random";
-const data = document.getElementById("data");
+    const data = document.getElementById("data");
 const btn = document.getElementById("btn");
 const prevBtn = document.getElementById("prevBtn");
 const author = document.getElementById("author");
@@ -93,22 +92,149 @@ const author = document.getElementById("author");
 let history = [];
 let currentQuote = null;
 
+// Fallback quotes for when API is unavailable
+const fallbackQuotes = [
+  {
+    text: "LISP has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.",
+    author: "Edsger W. Dijkstra"
+  },
+  {
+    text: "The best way to predict the future is to implement it.",
+    author: "David Heinemeier Hansson"
+  },
+  {
+    text: "Code is like humor. When you have to explain it, it's bad.",
+    author: "Cory House"
+  },
+  {
+    text: "Programs must be written for people to read, and only incidentally for machines to execute.",
+    author: "Harold Abelson"
+  },
+  {
+    text: "First, solve the problem. Then, write the code.",
+    author: "John Johnson"
+  },
+  {
+    text: "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
+    author: "Martin Fowler"
+  },
+  {
+    text: "Experience is the name everyone gives to their mistakes.",
+    author: "Oscar Wilde"
+  },
+  {
+    text: "The most important property of a program is whether it accomplishes the intention of its user.",
+    author: "C.A.R. Hoare"
+  },
+  {
+    text: "Debugging is twice as hard as writing the code in the first place.",
+    author: "Brian Kernighan"
+  },
+  {
+    text: "It's not a bug – it's an undocumented feature.",
+    author: "Anonymous"
+  }
+];
+
+// API URLs to try
+const apiUrls = [
+  "https://api.quotable.io/random",
+  "https://programming-quotes-api.herokuapp.com/quotes/random",
+  "https://zenquotes.io/api/random"
+];
+
+let usedFallbackIndices = [];
+
+function getRandomFallbackQuote() {
+  if (usedFallbackIndices.length >= fallbackQuotes.length) {
+    usedFallbackIndices = [];
+  }
+  
+  let randomIndex;
+  do {
+    randomIndex = Math.floor(Math.random() * fallbackQuotes.length);
+  } while (usedFallbackIndices.includes(randomIndex));
+  
+  usedFallbackIndices.push(randomIndex);
+  return fallbackQuotes[randomIndex];
+}
+
 function fetchQuote() {
+  // Show loading state
+  btn.disabled = true;
+  btn.innerHTML = "Loading...";
+
+  // Try APIs in sequence
+  tryAPIs(0);
+}
+
+function tryAPIs(apiIndex) {
+  if (apiIndex >= apiUrls.length) {
+    // All APIs failed, use fallback
+    useFallbackQuote();
+    return;
+  }
+
+  const url = apiUrls[apiIndex];
+  
   fetch(url)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('API response not ok');
+      return response.json();
+    })
     .then(quote => {
+      let processedQuote;
+      
+      // Handle different API response formats
+      if (url.includes('quotable.io')) {
+        processedQuote = {
+          text: quote.content,
+          author: quote.author
+        };
+      } else if (url.includes('zenquotes.io')) {
+        processedQuote = {
+          text: quote[0].q,
+          author: quote[0].a
+        };
+      } else {
+        // Default format (programming-quotes-api)
+        processedQuote = {
+          text: quote.en || quote.text || quote.content,
+          author: quote.author
+        };
+      }
+      
       if (currentQuote) history.push(currentQuote);
-      currentQuote = quote;
-      updateUI(quote);
+      currentQuote = processedQuote;
+      updateUI(processedQuote);
       if (history.length > 0) prevBtn.classList.remove("hidden");
+      
+      // Reset button
+      btn.disabled = false;
+      btn.innerHTML = "New Quote";
     })
     .catch(err => {
-      console.error("Error fetching quote:", err);
+      console.log(`API ${apiIndex + 1} failed:`, err.message);
+      // Try next API
+      tryAPIs(apiIndex + 1);
     });
 }
 
+function useFallbackQuote() {
+  const quote = getRandomFallbackQuote();
+  
+  if (currentQuote) history.push(currentQuote);
+  currentQuote = quote;
+  updateUI(quote);
+  if (history.length > 0) prevBtn.classList.remove("hidden");
+  
+  // Reset button
+  btn.disabled = false;
+  btn.innerHTML = "New Quote";
+}
+
 function updateUI(quote) {
-  data.innerHTML = quote.en;
+  data.innerHTML = quote.text;
   author.innerHTML = `— ${quote.author}`;
   data.classList.remove("fade-in");
   void data.offsetWidth; // reflow trick
@@ -125,6 +251,12 @@ prevBtn.addEventListener("click", () => {
     if (history.length === 0) prevBtn.classList.add("hidden");
   }
 });
+
+// Initialize with the current quote on page load
+currentQuote = {
+  text: "LISP has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.",
+  author: "Edsger W. Dijkstra"
+};
 
   </script>
 </body>
