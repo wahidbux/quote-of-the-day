@@ -84,13 +84,49 @@
   </div>
 
   <script>
+
     const data = document.getElementById("data");
+
+    // Multiple API endpoints for reliability
+    const apiEndpoints = [
+      "https://api.quotable.io/random",
+      "https://programming-quotes-api.azurewebsites.net/api/quotes/random",
+      "https://zenquotes.io/api/random"
+    ];
+
+    // Fallback quotes in case all APIs fail
+    const fallbackQuotes = [
+      {
+        en: "The best way to predict the future is to invent it.",
+        author: "Alan Kay"
+      },
+      {
+        en: "Code is like humor. When you have to explain it, it's bad.",
+        author: "Cory House"
+      },
+      {
+        en: "Programming isn't about what you know; it's about what you can figure out.",
+        author: "Chris Pine"
+      },
+      {
+        en: "The only way to learn a new programming language is by writing programs in it.",
+        author: "Dennis Ritchie"
+      },
+      {
+        en: "Talk is cheap. Show me the code.",
+        author: "Linus Torvalds"
+      }
+    ];
+
+const data = document.getElementById("data");
+
 const btn = document.getElementById("btn");
 const prevBtn = document.getElementById("prevBtn");
 const author = document.getElementById("author");
 
 let history = [];
 let currentQuote = null;
+
 
 // Fallback quotes for when API is unavailable
 const fallbackQuotes = [
@@ -218,6 +254,88 @@ function tryAPIs(apiIndex) {
       // Try next API
       tryAPIs(apiIndex + 1);
     });
+let currentApiIndex = 0;
+
+async function fetchQuote() {
+  // Show loading state
+  btn.textContent = "Loading...";
+  btn.disabled = true;
+  
+  let quote = null;
+  let success = false;
+  
+  // Try each API endpoint
+  for (let i = 0; i < apiEndpoints.length && !success; i++) {
+    try {
+      console.log(`Trying API: ${apiEndpoints[currentApiIndex]}`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(apiEndpoints[currentApiIndex], {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // Handle different API response formats
+      if (apiEndpoints[currentApiIndex].includes('quotable.io')) {
+        quote = {
+          en: result.content,
+          author: result.author
+        };
+      } else if (apiEndpoints[currentApiIndex].includes('zenquotes.io')) {
+        quote = {
+          en: result[0].q,
+          author: result[0].a
+        };
+      } else {
+        // Programming quotes API format
+        quote = {
+          en: result.en || result.quote,
+          author: result.author
+        };
+      }
+      
+      if (quote && quote.en && quote.author) {
+        success = true;
+        console.log("Successfully fetched quote from API");
+      } else {
+        throw new Error("Invalid quote format");
+      }
+      
+    } catch (err) {
+      console.warn(`API ${currentApiIndex + 1} failed:`, err.message);
+      currentApiIndex = (currentApiIndex + 1) % apiEndpoints.length;
+    }
+  }
+  
+  // If all APIs fail, use fallback
+  if (!success) {
+    console.log("All APIs failed, using fallback quote");
+    quote = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+  }
+  
+  // Update UI
+  if (quote) {
+    if (currentQuote) history.push(currentQuote);
+    currentQuote = quote;
+    updateUI(quote);
+    if (history.length > 0) prevBtn.classList.remove("hidden");
+  }
+  
+  // Reset button
+  btn.textContent = "New Quote";
+  btn.disabled 
 }
 
 function useFallbackQuote() {
