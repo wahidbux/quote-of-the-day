@@ -1,22 +1,47 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quote of the Day</title>
-  <style>
-    body { font-family: 'Poppins', sans-serif; }
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    .fade-in { animation: fadeIn 0.6s ease-in-out; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+
+  <style>
+    /* ===================
+       🌙 Base Styles
+    =================== */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0a0a0a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
     }
 
-    /* Spinning gradient behind the card */
+    * {
+      box-sizing: border-box;
+    }
+
+    /* ===================
+       🎨 Card Styling
+    =================== */
+    .card {
+      position: relative;
+      border-radius: 1rem;
+      overflow: hidden;
+      z-index: 1;
+    }
+
     .card::before {
       content: '';
       position: absolute;
@@ -24,46 +49,100 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: conic-gradient(from 0deg, #7c77c6, #ff5e62, #ffcd3c, #7c77c6);
+      background: conic-gradient(
+        from 0deg,
+        #7c77c6,
+        #ff5e62,
+        #ffcd3c,
+        #7c77c6
+      );
       animation: spin 10s linear infinite;
       z-index: -1;
     }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Add glass effect for card background */
+    .card-content {
+      background: rgba(39, 39, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* ===================
+       ✨ Animations
+    =================== */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===================
+       🧭 Button Styles
+    =================== */
+    button {
+      transition: all 0.2s ease;
+    }
+
+    button:focus {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   </style>
 </head>
-<body class="bg-neutral-950 text-white flex items-center justify-center h-screen p-4">
 
+<body>
   <div class="relative w-full max-w-md">
-    <div class="card relative rounded-xl overflow-hidden">
-      <div class="bg-zinc-800 p-6 rounded-xl shadow-xl relative z-10 flex flex-col space-y-5">
-        
-        <!-- Dots -->
+    <div class="card">
+      <div class="card-content flex flex-col space-y-6">
+
+        <!-- Top Dots -->
         <div class="flex space-x-2">
           <div class="h-3 w-3 rounded-full bg-red-500"></div>
           <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
           <div class="h-3 w-3 rounded-full bg-green-500"></div>
         </div>
 
-        <!-- Quote -->
+        <!-- Quote Content -->
         <main class="text-center">
-          <sup><i class="ri-double-quotes-l text-2xl"></i></sup>
-          <p id="data" class="px-4 leading-relaxed fade-in">
+          <sup><i class="ri-double-quotes-l text-2xl text-pink-400"></i></sup>
+          <p id="data" class="px-4 leading-relaxed fade-in text-lg font-medium">
             LISP has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.
           </p>
-          <sub><i class="ri-double-quotes-r text-2xl"></i></sub>
+          <sub><i class="ri-double-quotes-r text-2xl text-pink-400"></i></sub>
         </main>
 
         <!-- Author -->
-        <div id="author" class="flex justify-end font-semibold">— Edsger W. Dijkstra</div>
+        <div id="author" class="flex justify-end font-semibold italic text-gray-300">
+          — Edsger W. Dijkstra
+        </div>
 
         <hr class="border-zinc-700">
 
         <!-- Buttons -->
-        <div class="flex justify-between">
-          <button id="prevBtn" class="bg-red-500 hover:bg-red-600 transition px-4 py-2 rounded-full font-semibold hidden">
+        <div class="flex justify-between pt-2">
+          <button id="prevBtn" aria-label="Previous Quote"
+            class="bg-red-500 hover:bg-red-600 px-5 py-2 rounded-full font-semibold hidden shadow-md">
             Previous
           </button>
-          <button id="btn" class="bg-blue-500 hover:bg-blue-600 transition px-4 py-2 rounded-full font-semibold">
+          <button id="btn" aria-label="Get New Quote"
+            class="bg-blue-500 hover:bg-blue-600 px-5 py-2 rounded-full font-semibold shadow-md">
             New Quote
           </button>
         </div>
@@ -106,7 +185,7 @@
       data.textContent = quote.text;
       author.textContent = `— ${quote.author}`;
       data.classList.remove("fade-in");
-      void data.offsetWidth;
+      void data.offsetWidth; // restart animation
       data.classList.add("fade-in");
     }
 
