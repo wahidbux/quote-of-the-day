@@ -1,5 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quote of the Day</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="relative w-full max-w-md">
+    <div class="card">
+      <div class="card-content flex flex-col space-y-6">
+
+        <div class="flex justify-between items-center">
+          <div class="flex space-x-2">
+            <div class="h-3 w-3 rounded-full bg-red-500"></div>
+            <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
+            <div class="h-3 w-3 rounded-full bg-green-500"></div>
+          </div>
+          <button id="themeToggle" aria-label="Toggle Theme">
+            <i class="ri-moon-line"></i>
+          </button>
+        </div>
+
+        <main class="text-center">
+          <sup><i class="ri-double-quotes-l text-2xl text-pink-400"></i></sup>
+          <p id="data" class="px-4 leading-relaxed fade-in text-lg font-medium">
+            LISP has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.
+          </p>
+          <sub><i class="ri-double-quotes-r text-2xl text-pink-400"></i></sub>
+        </main>
+
+        <div id="author" class="flex justify-end font-semibold italic text-gray-300">
+          — Edsger W. Dijkstra
+        </div>
+
+        <hr>
+
+        <div class="flex justify-between pt-2">
+          <button id="prevBtn" aria-label="Previous Quote"
+            class="bg-red-500 hover:bg-red-600 px-5 py-2 rounded-full font-semibold hidden shadow-md">
+            Previous
+          </button>
+          <button id="btn" aria-label="Get New Quote"
+            class="bg-blue-500 hover:bg-blue-600 px-5 py-2 rounded-full font-semibold shadow-md">
+            New Quote
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = document.getElementById("data");
+    const btn = document.getElementById("btn");
+    const prevBtn = document.getElementById("prevBtn");
+    const author = document.getElementById("author");
+    const themeToggle = document.getElementById("themeToggle");
+
+    let history = [];
+    let currentQuote = {
+      text: "LISP has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.",
+      author: "Edsger W. Dijkstra"
+    };
+
+    const fallbackQuotes = [
+      { text: "The best way to predict the future is to invent it.", author: "Alan Kay" },
+      { text: "Code is like humor. When you have to explain it, it's bad.", author: "Cory House" },
+      { text: "Talk is cheap. Show me the code.", author: "Linus Torvalds" }
+    ];
+
+    // UPDATED: Removed the dead herokuapp.com API link.
+    const apiEndpoints = [
+      "https://api.quotable.io/random",
+      "https://zenquotes.io/api/random" 
+    ];
+
+    function getRandomFallbackQuote() {
+      return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+    }
+
+    function updateUI(quote) {
+      if (!quote || !quote.text) {
+        console.error("Invalid quote object passed to updateUI:", quote);
+        quote = getRandomFallbackQuote(); // Ensure we always have a valid quote
+      }
+      data.textContent = quote.text;
+      author.textContent = `— ${quote.author || "Unknown"}`;
+      data.classList.remove("fade-in");
+      void data.offsetWidth; // restart animation
+      data.classList.add("fade-in");
+    }
+
+    // REPLACED with the faster 'Promise.any' version
+    async function fetchQuote() {
+      btn.textContent = "Loading...";
+      btn.disabled = true;
+
+      // This helper function fetches and standardizes the format from a given URL
+      const getQuoteFrom = async (url) => {
+        // We add a timeout to prevent waiting forever on a slow API
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId); // Clear the timeout if fetch was successful
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status}`);
+        }
+        const result = await response.json();
+
+        // Standardize the response format for each API
+        if (url.includes("quotable.io")) {
+          if (!result.content || !result.author) throw new Error("Invalid format from quotable.io");
+          return { text: result.content, author: result.author };
+        }
+        if (url.includes("zenquotes.io")) {
+          if (!result[0]?.q || !result[0]?.a) throw new Error("Invalid format from zenquotes.io");
+          return { text: result[0].q, author: result[0].a };
+        }
+        throw new Error("Unknown API format");
+      };
+
+      try {
+        const promises = apiEndpoints.map(url => getQuoteFrom(url));
+        const quote = await Promise.any(promises);
+
+        if (currentQuote) history.push(currentQuote);
+        currentQuote = quote;
+        updateUI(quote);
+
+      } catch (err) {
+        // This runs if ALL APIs fail or time out
+        console.error("All APIs failed. Using a fallback quote.", err);
+        const fallbackQuote = getRandomFallbackQuote();
+        if (currentQuote) history.push(currentQuote);
+        currentQuote = fallbackQuote;
+        updateUI(fallbackQuote);
+      } finally {
+        // This always runs, ensuring the UI is reset correctly
+        if (history.length > 0) prevBtn.classList.remove("hidden");
+        btn.textContent = "New Quote";
+        btn.disabled = false;
+      }
+    }
+    
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -265,24 +418,52 @@
         currentQuote = quote;
         updateUI(quote);
 
+
         if (history.length > 0) prevBtn.classList.remove("hidden");
 
         btn.textContent = "New Quote";
         btn.disabled = false;
       }
 
-      btn.addEventListener("click", fetchQuote);
 
-      prevBtn.addEventListener("click", () => {
-        if (history.length > 0) {
-          currentQuote = history.pop();
-          updateUI(currentQuote);
-          if (history.length === 0) prevBtn.classList.add("hidden");
-        }
-      });
+    // 🌗 THEME TOGGLE
+    // ===================
+    function applyTheme(theme) {
+      document.body.classList.toggle("light-theme", theme === "light");
+      themeToggle.innerHTML = theme === "light" 
+        ? '<i class="ri-sun-line"></i>' 
+        : '<i class="ri-moon-line"></i>';
+    }
 
-      // Initialize
-      updateUI(currentQuote);
-    </script>
-  </body>
+    const savedTheme = localStorage.getItem("theme");
+    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+    const initialTheme = savedTheme || (prefersLight ? "light" : "dark");
+    applyTheme(initialTheme);
+
+    themeToggle.addEventListener("click", () => {
+      const newTheme = document.body.classList.contains("light-theme") ? "dark" : "light";
+      applyTheme(newTheme);
+      localStorage.setItem("theme", newTheme);
+    });
+    
+    // Initialize UI
+    updateUI(currentQuote);
+
+    // =============================
+    // ⌨️ KEYBOARD NAVIGATION
+    // =============================
+    document.addEventListener('keydown', (event) => {
+      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+        return;
+      }
+      
+      if (event.key === 'ArrowRight') {
+        btn.click();
+      } 
+      else if (event.key === 'ArrowLeft') {
+        prevBtn.click();
+      }
+    });
+  </script>
+</body>
 </html>
