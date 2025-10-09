@@ -152,5 +152,14 @@
         btn.disabled = false;
       }
     }
+
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light-theme");
+
+      const icon = themeToggle.querySelector("i");
+      const isLight = document.body.classList.contains("light-theme");
+
+      icon.className = isLight ? "ri-sun-line" : "ri-moon-line";
+    });
     </script>
 </html>
