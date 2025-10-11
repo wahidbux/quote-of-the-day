@@ -5,6 +5,10 @@ const author = document.getElementById("author");
 const themeToggle = document.getElementById("themeToggle");
 const loading = document.getElementById("loading");
 
+// Copy-to-clipboard elements
+const copyBtn = document.getElementById("copyBtn");
+const tooltip = document.getElementById("copiedTooltip");
+
 let history = [];
 let currentQuote = {
   text: "LISP has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts.",
@@ -114,3 +118,76 @@ prevBtn.addEventListener("click", () => {
 });
 
 btn.addEventListener("click", fetchQuote);
+
+// ========================
+// 📋 Copy to Clipboard Feature
+// ========================
+if (copyBtn) {
+  copyBtn.addEventListener("click", () => {
+    const quoteText = data.textContent;
+    const authorText = author.textContent;
+
+    navigator.clipboard.writeText(`${quoteText} ${authorText}`).then(() => {
+      tooltip.style.opacity = 1; // Show tooltip
+      setTimeout(() => {
+        tooltip.style.opacity = 0; // Hide after 2s
+      }, 2000);
+    }).catch((err) => {
+      console.error("Failed to copy text: ", err);
+    });
+  });
+}
+
+const skeleton = document.getElementById("skeleton");
+
+async function fetchQuote() {
+  btn.disabled = true;
+  btn.textContent = "Loading...";
+
+  // Show skeleton and hide actual quote
+  skeleton.classList.remove("hidden");
+  data.classList.add("hidden");
+  author.classList.add("hidden");
+  loading.classList.remove("hidden");
+
+  const getQuoteFrom = async (url) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) throw new Error(`Failed: ${response.status}`);
+    const result = await response.json();
+
+    if (url.includes("quotable.io")) return { text: result.content, author: result.author };
+    if (url.includes("zenquotes.io")) return { text: result[0].q, author: result[0].a };
+    throw new Error("Unknown API format");
+  };
+
+  try {
+    const promises = apiEndpoints.map((url) => getQuoteFrom(url));
+    const quote = await Promise.any(promises);
+
+    history.push(currentQuote);
+    currentQuote = quote;
+    updateUI(quote);
+  } catch (err) {
+    console.error("API failed. Using fallback.", err);
+    const fallback = getRandomFallbackQuote();
+    history.push(currentQuote);
+    currentQuote = fallback;
+    updateUI(fallback);
+  } finally {
+    btn.textContent = "New Quote";
+    btn.disabled = false;
+    loading.classList.add("hidden");
+
+    // Hide skeleton and show actual quote
+    skeleton.classList.add("hidden");
+    data.classList.remove("hidden");
+    author.classList.remove("hidden");
+
+    if (history.length > 0) prevBtn.classList.remove("hidden");
+  }
+}
