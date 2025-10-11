@@ -87,6 +87,28 @@
       </div>
     </div>
 
-    <script src="script.js" defer></script>
-  </body>
+      } catch (err) {
+        // This runs if ALL APIs fail or time out
+        console.error("All APIs failed. Using a fallback quote.", err);
+        const fallbackQuote = getRandomFallbackQuote();
+        if (currentQuote) history.push(currentQuote);
+        currentQuote = fallbackQuote;
+        updateUI(fallbackQuote);
+      } finally {
+        // This always runs, ensuring the UI is reset correctly
+        if (history.length > 0) prevBtn.classList.remove("hidden");
+        btn.textContent = "New Quote";
+        btn.disabled = false;
+      }
+    }
+
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light-theme");
+
+      const icon = themeToggle.querySelector("i");
+      const isLight = document.body.classList.contains("light-theme");
+
+      icon.className = isLight ? "ri-sun-line" : "ri-moon-line";
+    });
+    </script>
 </html>
