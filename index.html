@@ -39,25 +39,47 @@
           </div>
 
           <!-- Quote Section -->
-          <main class="text-center px-2">
-            <sup><i class="ri-double-quotes-l text-2xl text-pink-400"></i></sup>
-            <blockquote
-              id="data"
-              class="px-2 text-base sm:text-lg leading-relaxed font-medium fade-in"
-            >
-              LISP has assisted a number of our most gifted fellow humans in
-              thinking previously impossible thoughts.
-            </blockquote>
-            <sub><i class="ri-double-quotes-r text-2xl text-pink-400"></i></sub>
-          </main>
+          <!-- Quote Section -->
+<main class="text-center px-2 relative">
+  <!-- Skeleton Loader -->
+  <div id="skeleton" class="animate-pulse hidden">
+    <div class="h-6 bg-gray-300 rounded w-3/4 mx-auto mb-4"></div>
+    <div class="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
+  </div>
 
-          <!-- Author -->
-          <cite
-            id="author"
-            class="block text-right text-sm sm:text-base font-semibold italic text-gray-300"
-          >
-            — Edsger W. Dijkstra
-          </cite>
+  <!-- Actual Quote -->
+  <sup><i class="ri-double-quotes-l text-2xl text-pink-400"></i></sup>
+  <blockquote
+    id="data"
+    class="px-2 text-base sm:text-lg leading-relaxed font-medium fade-in"
+  >
+    LISP has assisted a number of our most gifted fellow humans in
+    thinking previously impossible thoughts.
+  </blockquote>
+  <sub><i class="ri-double-quotes-r text-2xl text-pink-400"></i></sub>
+</main>
+          <!-- Author + Copy Button -->
+          <div class="flex justify-end items-center space-x-2 relative">
+            <cite
+              id="author"
+              class="text-sm sm:text-base font-semibold italic text-gray-300"
+            >
+              — Edsger W. Dijkstra
+            </cite>
+            <button
+              id="copyBtn"
+              class="text-gray-300 hover:text-white transition-all"
+              aria-label="Copy Quote"
+            >
+              <i class="ri-file-copy-line"></i>
+            </button>
+            <span
+              id="copiedTooltip"
+              class="absolute top-0 right-10 bg-black text-white text-xs px-2 py-1 rounded opacity-0 transition-opacity"
+            >
+              Copied!
+            </span>
+          </div>
 
           <hr />
 
@@ -87,28 +109,7 @@
       </div>
     </div>
 
-      } catch (err) {
-        // This runs if ALL APIs fail or time out
-        console.error("All APIs failed. Using a fallback quote.", err);
-        const fallbackQuote = getRandomFallbackQuote();
-        if (currentQuote) history.push(currentQuote);
-        currentQuote = fallbackQuote;
-        updateUI(fallbackQuote);
-      } finally {
-        // This always runs, ensuring the UI is reset correctly
-        if (history.length > 0) prevBtn.classList.remove("hidden");
-        btn.textContent = "New Quote";
-        btn.disabled = false;
-      }
-    }
-
-    themeToggle.addEventListener("click", () => {
-      document.body.classList.toggle("light-theme");
-
-      const icon = themeToggle.querySelector("i");
-      const isLight = document.body.classList.contains("light-theme");
-
-      icon.className = isLight ? "ri-sun-line" : "ri-moon-line";
-    });
-    </script>
+    <!-- JS File -->
+    <script src="script.js"></script>
+  </body>
 </html>
