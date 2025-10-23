@@ -1,0 +1,14 @@
+import express from "express";
+const app = express();
+
+let logs = [];
+
+app.use((req, res, next) => {
+  logs.push({ path: req.path, method: req.method, time: new Date().toISOString() });
+  next();
+});
+
+app.get("/", (req, res) => res.send("Home Page"));
+app.get("/logs", (req, res) => res.json(logs));
+
+app.listen(3010);
